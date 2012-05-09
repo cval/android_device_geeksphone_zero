@@ -119,7 +119,7 @@ PRODUCT_COPY_FILES += \
     vendor/geeksphone/zero/proprietary/bin/bt_tool.dat:system/bin/bt_tool.dat \
     vendor/geeksphone/zero/proprietary/bin/btwlancoex:system/bin/btwlancoex \
     vendor/geeksphone/zero/proprietary/bin/CKPD-daemon:system/bin/CKPD-daemon \
-    vendor/geeksphone/zero/proprietary/bin/memsicd:system/bin/memsicd \
+    device/geeksphone/zero/prebuilt/memsicd:system/bin/memsicd \
     vendor/geeksphone/zero/proprietary/bin/wl:system/bin/wl \
     vendor/geeksphone/zero/proprietary/etc/sdio.bin:system/etc/firmware/fw_bcm4329_apsta.bin \
     vendor/geeksphone/zero/proprietary/etc/sdio_cit.bin:system/etc/firmware/fw_bcm4329.bin \
