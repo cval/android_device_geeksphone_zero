@@ -127,7 +127,6 @@ PRODUCT_COPY_FILES += \
     device/geeksphone/zero/prebuilt/init.qcom.coex.sh:system/etc/init.qcom.coex.sh \
     device/geeksphone/zero/prebuilt/wificit.sh:system/bin/wificit.sh \
     device/geeksphone/zero/prebuilt/nvram.txt:system/etc/wifi/nvram.txt \
-    vendor/geeksphone/zero/proprietary/lib/hw/sensors.default.so:system/lib/hw/sensors.default.so \
     device/geeksphone/zero/AutoVolumeControl.txt:system/etc/AutoVolumeControl.txt \
     device/geeksphone/zero/AudioFilter.csv:system/etc/AudioFilter.csv \
     vendor/geeksphone/zero/proprietary/lib/libaudioeq.so:system/lib/libaudioeq.so \
