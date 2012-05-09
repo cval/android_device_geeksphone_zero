@@ -150,6 +150,9 @@ PRODUCT_COPY_FILES += \
     device/geeksphone/zero/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf \
     device/geeksphone/zero/7k_ffa_keypad.kl:system/usr/keylayout/7k_ffa_keypad.kl
 
+PRODUCT_COPY_FILES += \
+    device/geeksphone/zero/prebuilt/tun.ko:system/lib/modules/tun.ko \
+    device/geeksphone/zero/prebuilt/cifs.ko:system/lib/modules/cifs.ko
 
 $(call inherit-product, build/target/product/full_base.mk)
 
