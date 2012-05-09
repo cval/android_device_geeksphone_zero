@@ -152,6 +152,17 @@ PRODUCT_COPY_FILES += \
     device/geeksphone/zero/prebuilt/tun.ko:system/lib/modules/tun.ko \
     device/geeksphone/zero/prebuilt/cifs.ko:system/lib/modules/cifs.ko
 
+PRODUCT_COPY_FILES += \
+    device/geeksphone/zero/battery_charging/charging_0.rle:system/charging_0.rle \
+    device/geeksphone/zero/battery_charging/charging_1.rle:system/charging_1.rle \
+    device/geeksphone/zero/battery_charging/charging_2.rle:system/charging_2.rle \
+    device/geeksphone/zero/battery_charging/charging_3.rle:system/charging_3.rle \
+    device/geeksphone/zero/battery_charging/charging_4.rle:system/charging_4.rle \
+    device/geeksphone/zero/battery_charging/charging_5.rle:system/charging_5.rle \
+    device/geeksphone/zero/battery_charging/charging_6.rle:system/charging_6.rle \
+    device/geeksphone/zero/battery_charging/battery_charging:system/bin/battery_charging \
+    device/geeksphone/zero/battery_charging/gzr.ini:system/etc/gzr.ini
+
 $(call inherit-product, build/target/product/full_base.mk)
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0

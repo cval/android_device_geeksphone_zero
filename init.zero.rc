@@ -23,6 +23,12 @@ on fs
    chmod 777 /data/simcom/btadd
    #mount yaffs2 mtd@system /system rw remount
 
+on boot-pause
+	chown root root /system/bin/battery_charging
+	chmod 0777 /dev/misc_battery_boot
+	chmod 0777 /dev/misc_version_boot
+	exec /system/bin/battery_charging
+
 #---enable keypad interrupt until boot complete
 on boot
     ## RIL needs this
