@@ -333,10 +333,10 @@ static const str_map effects[] = {
     { CameraParameters::EFFECT_NEGATIVE,   CAMERA_EFFECT_NEGATIVE },
     { CameraParameters::EFFECT_SOLARIZE,   CAMERA_EFFECT_SOLARIZE },
     { CameraParameters::EFFECT_SEPIA,      CAMERA_EFFECT_SEPIA },
-    { CameraParameters::EFFECT_POSTERIZE,  CAMERA_EFFECT_POSTERIZE },
-    { CameraParameters::EFFECT_WHITEBOARD, CAMERA_EFFECT_WHITEBOARD },
-    { CameraParameters::EFFECT_BLACKBOARD, CAMERA_EFFECT_BLACKBOARD },
-    { CameraParameters::EFFECT_AQUA,       CAMERA_EFFECT_AQUA }
+//  { CameraParameters::EFFECT_POSTERIZE,  CAMERA_EFFECT_POSTERIZE },
+//  { CameraParameters::EFFECT_WHITEBOARD, CAMERA_EFFECT_WHITEBOARD },
+//  { CameraParameters::EFFECT_BLACKBOARD, CAMERA_EFFECT_BLACKBOARD },
+//  { CameraParameters::EFFECT_AQUA,       CAMERA_EFFECT_AQUA }
 };
 
 // from qcamera/common/camera.h
@@ -563,20 +563,20 @@ static struct country_map country_numeric[] = {
 
 static const str_map scenemode[] = {
     { CameraParameters::SCENE_MODE_AUTO,           CAMERA_BESTSHOT_OFF },
-    { CameraParameters::SCENE_MODE_ACTION,         CAMERA_BESTSHOT_ACTION },
-    { CameraParameters::SCENE_MODE_PORTRAIT,       CAMERA_BESTSHOT_PORTRAIT },
-    { CameraParameters::SCENE_MODE_LANDSCAPE,      CAMERA_BESTSHOT_LANDSCAPE },
+//  { CameraParameters::SCENE_MODE_ACTION,         CAMERA_BESTSHOT_ACTION },
+//  { CameraParameters::SCENE_MODE_PORTRAIT,       CAMERA_BESTSHOT_PORTRAIT },
+//  { CameraParameters::SCENE_MODE_LANDSCAPE,      CAMERA_BESTSHOT_LANDSCAPE },
     { CameraParameters::SCENE_MODE_NIGHT,          CAMERA_BESTSHOT_NIGHT },
-    { CameraParameters::SCENE_MODE_NIGHT_PORTRAIT, CAMERA_BESTSHOT_NIGHT_PORTRAIT },
-    { CameraParameters::SCENE_MODE_THEATRE,        CAMERA_BESTSHOT_THEATRE },
-    { CameraParameters::SCENE_MODE_BEACH,          CAMERA_BESTSHOT_BEACH },
-    { CameraParameters::SCENE_MODE_SNOW,           CAMERA_BESTSHOT_SNOW },
-    { CameraParameters::SCENE_MODE_SUNSET,         CAMERA_BESTSHOT_SUNSET },
-    { CameraParameters::SCENE_MODE_STEADYPHOTO,    CAMERA_BESTSHOT_ANTISHAKE },
-    { CameraParameters::SCENE_MODE_FIREWORKS ,     CAMERA_BESTSHOT_FIREWORKS },
-    { CameraParameters::SCENE_MODE_SPORTS ,        CAMERA_BESTSHOT_SPORTS },
-    { CameraParameters::SCENE_MODE_PARTY,          CAMERA_BESTSHOT_PARTY },
-    { CameraParameters::SCENE_MODE_CANDLELIGHT,    CAMERA_BESTSHOT_CANDLELIGHT },
+//  { CameraParameters::SCENE_MODE_NIGHT_PORTRAIT, CAMERA_BESTSHOT_NIGHT_PORTRAIT },
+//  { CameraParameters::SCENE_MODE_THEATRE,        CAMERA_BESTSHOT_THEATRE },
+//  { CameraParameters::SCENE_MODE_BEACH,          CAMERA_BESTSHOT_BEACH },
+//  { CameraParameters::SCENE_MODE_SNOW,           CAMERA_BESTSHOT_SNOW },
+//  { CameraParameters::SCENE_MODE_SUNSET,         CAMERA_BESTSHOT_SUNSET },
+//  { CameraParameters::SCENE_MODE_STEADYPHOTO,    CAMERA_BESTSHOT_ANTISHAKE },
+//  { CameraParameters::SCENE_MODE_FIREWORKS ,     CAMERA_BESTSHOT_FIREWORKS },
+//  { CameraParameters::SCENE_MODE_SPORTS ,        CAMERA_BESTSHOT_SPORTS },
+//  { CameraParameters::SCENE_MODE_PARTY,          CAMERA_BESTSHOT_PARTY },
+//  { CameraParameters::SCENE_MODE_CANDLELIGHT,    CAMERA_BESTSHOT_CANDLELIGHT },
 };
 
 #define country_number (sizeof(country_numeric) / sizeof(country_map))
@@ -631,7 +631,7 @@ static const str_map iso[] = {
     { CameraParameters::ISO_200,   CAMERA_ISO_200},
     { CameraParameters::ISO_400,   CAMERA_ISO_400},
     { CameraParameters::ISO_800,   CAMERA_ISO_800 },
-    { CameraParameters::ISO_1600,  CAMERA_ISO_1600 }
+//  { CameraParameters::ISO_1600,  CAMERA_ISO_1600 }
 };
 
 
@@ -1274,7 +1274,7 @@ void QualcommCameraHardware::initDefaultParameters()
                     CameraParameters::LENSSHADE_ENABLE);
     mParameters.set(CameraParameters::KEY_SUPPORTED_ISO_MODES,
                     iso_values);
-        mParameters.set(CameraParameters::KEY_SUPPORTED_LENSSHADE_MODES,
+    mParameters.set(CameraParameters::KEY_SUPPORTED_LENSSHADE_MODES,
                     lensshade_values);
     mParameters.set(CameraParameters::KEY_SCENE_MODE,
                     CameraParameters::SCENE_MODE_AUTO);
@@ -1549,6 +1549,7 @@ static bool native_get_maxzoom(int camfd, void *pZm)
     }
     LOGD("ctrlCmd.value = %d", *(int32_t *)ctrlCmd.value);
     memcpy(pZoom, (int32_t *)ctrlCmd.value, sizeof(int32_t));
+    *pZoom >>= 1;
 
     LOGV("native_get_maxzoom X");
     return true;
@@ -1594,9 +1595,10 @@ static bool native_set_afmode(int camfd, isp3a_af_mode_t af_type)
         LOGE("native_set_afmode: ioctl fd %d error %s\n",
              camfd,
              strerror(errno));
-
+    rc =*(int *)(ctrlCmd.value);
     LOGV("native_set_afmode: ctrlCmd.status == %d\n", ctrlCmd.status);
-    return rc >= 0 /*&& ctrlCmd.status == CAMERA_EXIT_CB_DONE*/;
+    LOGV("native_set_afmode: rc == %d\n", rc);
+    return rc > 0 && ctrlCmd.status == CAMERA_EXIT_CB_DONE;
 }
 
 static bool native_cancel_afmode(int camfd, int af_fd)
@@ -2252,10 +2254,18 @@ void QualcommCameraHardware::runFrameThread(void *data)
     {
         LINK_cam_frame(data);
     }
-
-    mPreviewHeap.clear();
-    if(( mCurrentTarget == TARGET_MSM7630 ) || (mCurrentTarget == TARGET_QSD8250))
-        mRecordHeap.clear();
+    {
+        /* In case of ESD, don't clear the preview and record buffers.
+         * The solution in this scenario expects that the same preview
+         * and record buffers to be available when the VFE resets/recovers.
+         */
+        Mutex::Autolock l(&mCamframeTimeoutLock);
+        if(!camframe_timeout_flag) {
+            mPreviewHeap.clear();
+            if(( mCurrentTarget == TARGET_MSM7630 ) || (mCurrentTarget == TARGET_QSD8250))
+                mRecordHeap.clear();
+        }
+    }
 
 #if DLOPEN_LIBMMCAMERA
     if (libhandle) {
@@ -2932,12 +2942,16 @@ void QualcommCameraHardware::stopPreviewInternal()
 {
     LOGV("stopPreviewInternal E: %d", mCameraRunning);
     if (mCameraRunning) {
+// [ -!- ]
+#if 0
         // Cancel auto focus.
         {
             if (mNotifyCallback && (mMsgEnabled & CAMERA_MSG_FOCUS)) {
                 cancelAutoFocusInternal();
             }
         }
+#endif
+// [ -!- ]
 
         Mutex::Autolock l(&mCamframeTimeoutLock);
         {
@@ -3095,12 +3109,14 @@ status_t QualcommCameraHardware::cancelAutoFocusInternal()
         return NO_ERROR;
     }
 
-#if 0
+// [ -!- ]
+//#if 0
     if (mAutoFocusFd < 0) {
         LOGV("cancelAutoFocusInternal X: not in progress");
         return NO_ERROR;
     }
-#endif
+//#endif
+// [ -!- ]
 
     status_t rc = NO_ERROR;
     status_t err;
@@ -3382,11 +3398,11 @@ status_t QualcommCameraHardware::setParameters(const CameraParameters& params)
     if ((rc = setRotation(params)))     final_rc = rc;
     if ((rc = setZoom(params)))         final_rc = rc;
     if ((rc = setOrientation(params)))  final_rc = rc;
-    if ((rc = setLensshadeValue(params)))  final_rc = rc;
+//  if ((rc = setLensshadeValue(params)))  final_rc = rc;  // 37
     if ((rc = setPictureFormat(params))) final_rc = rc;
-    if ((rc = setSharpness(params)))    final_rc = rc;
-    if ((rc = setSaturation(params)))   final_rc = rc;
-    if ((rc = setSceneMode(params)))    final_rc = rc;
+//  if ((rc = setSharpness(params)))    final_rc = rc;     // 4 
+//  if ((rc = setSaturation(params)))   final_rc = rc;     // 11
+//  if ((rc = setSceneMode(params)))    final_rc = rc;     // 27
     if ((rc = setContrast(params)))     final_rc = rc;
 
     const char *str = params.get(CameraParameters::KEY_SCENE_MODE);
@@ -3394,11 +3410,11 @@ status_t QualcommCameraHardware::setParameters(const CameraParameters& params)
 
     if((value != NOT_FOUND) && (value == CAMERA_BESTSHOT_OFF)) {
         if ((rc = setPreviewFrameRate(params))) final_rc = rc;
-        if ((rc = setAntibanding(params)))  final_rc = rc;
-        if ((rc = setAutoExposure(params))) final_rc = rc;
+//      if ((rc = setAntibanding(params)))  final_rc = rc;  // 54
+//      if ((rc = setAutoExposure(params))) final_rc = rc;  // 12
         if ((rc = setExposureCompensation(params))) final_rc = rc;
         if ((rc = setWhiteBalance(params))) final_rc = rc;
-        if ((rc = setFlash(params)))        final_rc = rc;
+//      if ((rc = setFlash(params)))        final_rc = rc;
         if ((rc = setFocusMode(params)))    final_rc = rc;
         if ((rc = setBrightness(params)))   final_rc = rc;
         if ((rc = setISOValue(params)))  final_rc = rc;
@@ -3741,7 +3757,7 @@ bool QualcommCameraHardware::initRecord()
         recordframes[cnt].buffer =
             (uint32_t)mRecordHeap->mHeap->base() + mRecordHeap->mAlignedBufferSize * cnt;
         recordframes[cnt].y_off = 0;
-        recordframes[cnt].cbcr_off = mDimension.video_width  * mDimension.video_height;
+        recordframes[cnt].cbcr_off = CbCrOffset;
         recordframes[cnt].path = OUTPUT_TYPE_V;
         record_buffers_tracking_flag[cnt] = false;
         LOGV ("initRecord :  record heap , video buffers  buffer=%lu fd=%d y_off=%d cbcr_off=%d \n",
@@ -3807,7 +3823,7 @@ status_t QualcommCameraHardware::startRecording()
             pthread_attr_t attr;
             pthread_attr_init(&attr);
             pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-            mVideoThreadRunning = pthread_create(&mVideoThread,
+            mVideoThreadRunning = !pthread_create(&mVideoThread,
                                               &attr,
                                               video_thread,
                                               NULL);
@@ -3880,8 +3896,10 @@ void QualcommCameraHardware::releaseRecordingFrame(
             mFrameThreadWaitLock.lock();
             if(mFrameThreadRunning ) {
                 //Reset the track flag for this frame buffer
-                record_buffers_tracking_flag[cnt] = false;
-                LINK_camframe_free_video(releaseframe);
+                if(record_buffers_tracking_flag[cnt] == true) {
+                    record_buffers_tracking_flag[cnt] = false;
+                    LINK_camframe_free_video(releaseframe);
+                }
             }
 
             mFrameThreadWaitLock.unlock();
