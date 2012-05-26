@@ -12,8 +12,7 @@ PRODUCT_PACKAGES += \
     gps.zero \
     copybit.msm7k \
     gralloc.zero \
-    libOmxCore \
-    lights.msm7k
+    libOmxCore
 
 # Extra apps
 #PRODUCT_PACKAGES += \
@@ -139,7 +138,8 @@ PRODUCT_COPY_FILES += \
     vendor/geeksphone/zero/proprietary/etc/firmware/yamato_pfp.fw:system/etc/firmware/yamato_pfp.fw \
     vendor/geeksphone/zero/proprietary/etc/firmware/yamato_pm4.fw:system/etc/firmware/yamato_pm4.fw \
     vendor/geeksphone/zero/proprietary/lib/libgsl.so:system/lib/libgsl.so \
-    vendor/geeksphone/zero/proprietary/etc/BCM4325D1_004.002.004.0230.0244.hcd:system/etc/BCM4325D1_004.002.004.0230.0244.hcd
+    vendor/geeksphone/zero/proprietary/etc/BCM4325D1_004.002.004.0230.0244.hcd:system/etc/BCM4325D1_004.002.004.0230.0244.hcd \
+    vendor/geeksphone/zero/proprietary/lib/hw/lights.msm7k.so:system/lib/hw/lights.zero.so
 
 PRODUCT_COPY_FILES += \
     device/geeksphone/zero/media_profiles.xml:system/etc/media_profiles.xml \
