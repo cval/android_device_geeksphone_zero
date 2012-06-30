@@ -160,8 +160,7 @@ PRODUCT_COPY_FILES += \
     device/geeksphone/zero/battery_charging/charging_4.rle:system/charging_4.rle \
     device/geeksphone/zero/battery_charging/charging_5.rle:system/charging_5.rle \
     device/geeksphone/zero/battery_charging/charging_6.rle:system/charging_6.rle \
-    device/geeksphone/zero/battery_charging/battery_charging:system/bin/battery_charging \
-    device/geeksphone/zero/battery_charging/gzr.ini:system/etc/gzr.ini
+    device/geeksphone/zero/battery_charging/battery_charging:system/bin/battery_charging
 
 $(call inherit-product, build/target/product/full_base.mk)
 
