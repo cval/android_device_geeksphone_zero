@@ -2942,16 +2942,12 @@ void QualcommCameraHardware::stopPreviewInternal()
 {
     LOGV("stopPreviewInternal E: %d", mCameraRunning);
     if (mCameraRunning) {
-// [ -!- ]
-#if 0
         // Cancel auto focus.
         {
             if (mNotifyCallback && (mMsgEnabled & CAMERA_MSG_FOCUS)) {
                 cancelAutoFocusInternal();
             }
         }
-#endif
-// [ -!- ]
 
         Mutex::Autolock l(&mCamframeTimeoutLock);
         {
@@ -3109,14 +3105,12 @@ status_t QualcommCameraHardware::cancelAutoFocusInternal()
         return NO_ERROR;
     }
 
-// [ -!- ]
-//#if 0
+#if 0
     if (mAutoFocusFd < 0) {
         LOGV("cancelAutoFocusInternal X: not in progress");
         return NO_ERROR;
     }
-//#endif
-// [ -!- ]
+#endif
 
     status_t rc = NO_ERROR;
     status_t err;
