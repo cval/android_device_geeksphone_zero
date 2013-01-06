@@ -13,7 +13,6 @@ on fs
     #Add popedom for CIT by smartwireless ltd
     chmod 777 /dev/graphics/fb0
     chmod 777 /system/etc/lcdvcom
-    chmod 666 /dev/threadright0
 
 
    mkdir /data/simcom       0777 system system
